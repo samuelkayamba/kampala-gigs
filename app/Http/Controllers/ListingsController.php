@@ -24,10 +24,9 @@ class ListingsController extends BaseController
     public function index()
     {
         $files = listing::latest()
-                        ->filter(request(['tag','search']))
-                        ->paginate(6)
-                        ->withQueryString()
-;
+    ->filter(request(['tag', 'search', 'district', 'job_type']))
+    ->paginate(6)
+    ->withQueryString();
         return view('listings.index', compact('files'));
     }
 
@@ -45,14 +44,20 @@ class ListingsController extends BaseController
 //Store a List
        public function store(Request $request)
 {    $formFields = $request->validate([
-        'company' => ['required', Rule::unique('listings', 'company')],
+        'company' => ['required',],
         'title' => 'required',
         'location' => 'required',
         'email' => 'required|email',
-        'website' => 'required',
+        'website' => ['nullable','url',],
         'tags' => 'required',
+        'logo'=>['nullable','image','max:2048',],
         'description' => 'required',
+        'district' => ['required','string',Rule::in(config('gigs.districts')),],
+        'job_type' =>['required','string',Rule::in(config('gigs.job_types')),],
+        'salary_ugx' => ['nullable','integer','min:0',],
+        'whatsapp_number' => ['nullable','regex:/^(?:\+256|0)7[0-9]{8}$/',],
     ]);
+    $formFields['website'] = $formFields['website'] ?? '';
 
     if ($request->hasFile('logo')) {
         $formFields['logo'] = $request->file('logo')->store('logos', 'public');
@@ -72,34 +77,65 @@ $listing = $user->listings()->create($formFields);
 }
 
 
-//Store Edit form
-    public function edit(int $id)
-{    $Listing = Listing::findOrFail($id);
-    return view('listings.edit',['Listing' => $Listing]);
-}
-//Update a List
-    public function update(Request $request, Listing $Listing)
-{       //Make sure logged n user is the owner
-    if($Listing->user_id != auth()->id()){
-    abort(403,'Unauthorised Action');
-    }
-    $formFields = $request->validate([
-        'company' => 'required',
-        'title' => 'required',
-        'location' => 'required',
-        'email' => ['required', 'email'],
-        'website' => 'required',
-        'tags' => 'required',
-        'description' => 'required',
-    ]);
 
+// Show Edit form
+public function edit(int $id)
+{
+    $Listing = Listing::findOrFail($id);
+
+    // Only the owner can edit their listing
+    if ((int) $Listing->user_id !== (int) auth()->id()) {
+        abort(403, 'Unauthorized action.');
+    }
+
+    return view('listings.edit', ['Listing' => $Listing]);
+}
+
+// Update a listing
+public function update(Request $request, Listing $Listing)
+{
+    // Make sure the logged-in user owns the listing
+    if ((int) $Listing->user_id !== (int) auth()->id()) {
+        abort(403, 'Unauthorised Action');
+    }
+
+    $formFields = $request->validate([
+        'company' => ['required'],
+        'title' => ['required'],
+        'location' => ['required'],
+        'email' => ['required', 'email'],
+        'website' => ['nullable', 'url',],
+        'tags' => ['required'],
+        'logo' => ['nullable', 'image', 'max:2048',],
+        'description' => ['required'],
+        'district' => [
+            'required',
+            'string',
+            Rule::in(config('gigs.districts')),
+        ],
+        'job_type' => [
+            'required',
+            'string',
+            Rule::in(config('gigs.job_types')),
+        ],
+        'salary_ugx' => ['nullable', 'integer', 'min:0'],
+        'whatsapp_number' => [
+            'nullable',
+            'regex:/^(?:\+256|0)7[0-9]{8}$/',
+        ],
+    ]);
+    // Store an empty string when no website is provided
+$formFields['website'] = $formFields['website'] ?? '';
+
+    // Only replace the logo if a new one was uploaded
     if ($request->hasFile('logo')) {
         $formFields['logo'] = $request->file('logo')->store('logos', 'public');
     }
 
     $Listing->update($formFields);
 
-    return redirect('/')->with('successMessage', 'The Gig is successfully Updated!');
+    return redirect('/')
+        ->with('successMessage', 'The listing is successfully Updated!');
 }
 
 

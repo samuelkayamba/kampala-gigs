@@ -1,78 +1,116 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="{{ asset('images/favicon.ico') }}" />
+
+    <link rel="icon" href="{{ asset('images/kampala-gigs-favicon.ico') }}" />
     <link rel="stylesheet" href="{{ asset('/css/all.min.css') }}" />
     <script src="{{ asset('js/alpine.min.js') }}" defer></script>
     <script src="{{ asset('/js/tailwind.js') }}"></script>
-    <style type="text/tailwindcss">
-    @theme {
-        --color-laravel: #ef3b2d;
-    }
-</style>
-
-     <title>@yield('title', 'LaraGigs | Find Laravel Jobs & Projects')</title>
-
+    <title>@yield('title', 'Kampala Gigs | Find Work & Opportunities')</title>
 </head>
-    <body class="mb-48">
-        <nav class="flex justify-between items-center mb-4">
-            <a href="{{"/"}}"><img class="w-24" src="{{ asset("images/logo.png")}}" alt="" class="logo"></a>
-            <ul class="flex space-x-4 mr-6 text-lg">
+
+<body class="min-h-screen flex flex-col bg-[#F5F5F0] text-gray-800">
+
+    {{-- Navigation --}}
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-4">
+
+            {{-- Brand --}}
+            <a href="/" class="flex items-center gap-2">
+                <img
+                    class="w-12 h-12 object-contain"
+                    src="{{ asset('images/kampala-gigs-logo.png') }}"
+                    alt="Kampala Gigs logo"
+                />
+
+                <span class="text-xl md:text-2xl font-extrabold text-[#123B32]">
+                    Kampala <span class="text-[#E8B45A]">Gigs</span>
+                </span>
+            </a>
+
+            {{-- Navigation links --}}
+            <ul class="flex flex-wrap items-center gap-4 text-sm md:text-base font-medium">
+
                 @auth
-                <li>
-                    <span class="text-black-500"> Welcome {{auth()->user()->name}}
-                        </span>
+                    <li class="text-gray-600">
+                        Welcome, {{ auth()->user()->name }}
+                    </li>
 
-                </li>
-                <li>
-                    <a href="/listings/manage" class="hover:text-laravel"
-                        ><i class="fa-solid fa-gear"></i>Manage Listings
-                        </a
-                    >
-                </li>
-                <li>
+                    <li>
+                        <a href="/listings/manage"
+                            class="text-[#123B32] hover:text-[#E8B45A]">
+                            <i class="fa-solid fa-gear"></i>
+                            Manage Listings
+                        </a>
+                    </li>
 
-                    <form class="inline" method="POST" action="/logout">
-                    @csrf
-                    <button type="submit"><i class="fa-solid fa-door-closed"></i>Logout
-                    </button>
-
-                    </form>
+                    <li>
+                        <form class="inline" method="POST" action="/logout">
+                            @csrf
+                            <button type="submit"
+                                class="text-[#123B32] hover:text-red-600">
+                                <i class="fa-solid fa-door-closed"></i>
+                                Logout
+                            </button>
+                        </form>
                     </li>
                 @else
-                <li>
-                    <a href="/register" class="hover:text-laravel"
-                        ><i class="fa-solid fa-user-plus"></i> Register</a
-                    >
-                </li>
-                <li>
-                    <a href="/login" class="hover:text-laravel"
-                        ><i class="fa-solid fa-arrow-right-to-bracket"></i>
-                        Login</a
-                    >
-                </li>
+                    <li>
+                        <a href="/register"
+                            class="text-[#123B32] hover:text-[#E8B45A]">
+                            <i class="fa-solid fa-user-plus"></i>
+                            Register
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/login"
+                            class="text-[#123B32] hover:text-[#E8B45A]">
+                            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                            Login
+                        </a>
+                    </li>
                 @endauth
+
             </ul>
-        </nav>
+        </div>
+    </nav>
 
+    {{-- Main content --}}
+    <main class="flex-grow w-full">
+        {{ $slot }}
+    </main>
 
-        <main>{{$slot}}</main>
+    {{-- Footer --}}
+    <footer class="bg-[#123B32] text-white py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
 
-    <footer
-            class="fixed bottom-0 left-0 w-full flex items-center justify-start font-bold bg-laravel text-white h-24 mt-24 opacity-90 md:justify-center"
-        >
-            <p class="ml-2">Copyright &copy; 2026, All Rights reserved</p>
+            <p class="text-sm text-gray-200 text-center">
+                Copyright &copy; {{ date('Y') }} Kampala Gigs.
+                All Rights Reserved.
+            </p>
 
-            <a
-                href="{{"/List/create"}}"
-                class="absolute top-1/3 right-10 bg-black text-white py-2 px-5"
-                >Post Job</a
-            >
-        </footer>
-        <x-successMessage />
+            @auth
+                <a href="/List/create"
+                    class="bg-[#E8B45A] text-[#123B32] font-bold py-2 px-5 rounded-lg hover:bg-white transition">
+                    <i class="fa-solid fa-plus"></i>
+                    Post an Opportunity
+                </a>
+            @else
+                <a href="/register"
+                    class="bg-[#E8B45A] text-[#123B32] font-bold py-2 px-5 rounded-lg hover:bg-white transition">
+                    Get Started
+                </a>
+            @endauth
 
-    </body>
+        </div>
+    </footer>
+
+    <x-successMessage />
+
+</body>
 </html>

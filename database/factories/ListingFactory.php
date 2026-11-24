@@ -116,6 +116,10 @@ class ListingFactory extends Factory
             'website' => 'https://' . $domain,
             'description' => $selectedRole['desc'],
             'user_id' => User::factory(),
+            'district' => $this->faker->randomElement(config('gigs.districts')),
+            'job_type' => $this->faker->randomElement(config('gigs.job_types')),
+            'salary_ugx' => $this->faker->numberBetween(200000,3000000),
+            'whatsapp_number' => '+2567' . $this->faker->numerify('########'),
         ];
     }
 }

@@ -38,6 +38,6 @@ Route::post('/users',[UserController::class, 'store'])->middleware('guest');
 // User Logging Out
 Route::post('/logout',[UserController::class, 'logout'])->middleware('auth');
 // Display the login form
-Route::get('/login', [UserController::class, 'showLogin'])->name('login');
+Route::get('/login', [UserController::class, 'showLogin'])->middleware('guest')->name('login');
 // Process login credentials
-Route::post('/user/authenticate', [UserController::class, 'login']);
+Route::post('/user/authenticate', [UserController::class, 'login'])->middleware('guest');
